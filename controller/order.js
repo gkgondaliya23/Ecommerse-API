@@ -5,39 +5,47 @@ const User = require('../model/usersModel');
 
 exports.createOrder = async (req, res) => {
     try {
-        const orderItemsIds = Promise.all(
-            req.body.orderItems.map(async (orderitem)=>{
-                let newOrderItemId = new OrderItems({
+        const orderItemId = Promise.all(
+            req.body.orderItems.map(async (orderitem) => {
+                let neworderitemId = new OrderItems({
                     product: orderitem.product,
                     quntity: orderitem.quntity
                 })
-                newOrderItemId = await newOrderItemId.save();
-                return newOrderItemId._id;
-            })
-        );
+                neworderitemId = await neworderitemId.save();
+                return neworderitemId._id;
+            }))
 
-        const orderItem = await orderItemsIds;
-        const totalPrice = await Promise.all(
-            orderItem.map(async (orderitemId) =>{
-                const item = await OrderItems.findById(orderitemId).populate(
-                    'product',
-                    'price'
+        const orderItemsIds = await orderItemId;
+        const totalPrices = await Promise.all(
+            orderItemsIds.map(async (orderitemId) => {
+                const orderItem = await OrderItems.findById(orderitemId).populate(
+                    "product",
+                    "price"
                 );
-                const total = item.product.price * item.quntity;
-                return total;
+                const totalPrice = orderItem.product.price * orderItem.quntity;
+                return totalPrice;
             })
         );
-
-        const totalprice = totalPrice.reduce((a,b)=> a + b, 0);
+        const totalPrice = totalPrices.reduce((a, b) => a + b, 0);
         let order = new Order({
             user: req.body.user,
-            orderItems: orderItem,
-            totalprice: totalprice
+            orderItems: orderItemsIds,
+            totalPrice: totalPrice,
         });
 
         order = await order.save();
+        res.status(201).json({ Details: order._doc });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
-        res.status(201).json({ order,message: 'Product added to cart' });
+// Get All Orders
+exports.getAllOrders = async (req, res) => {
+    try {
+        const allOrders = await Order.find({}).populate('user');
+        res.status(200).json(allOrders);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -49,7 +57,7 @@ exports.getAllOrders = async (req, res) => {
     try {
         const allOrder = await Order.find({}).populate({
             path: 'user',
-            select: 'name username email phone isAdmin',
+            select: 'name email phone',
         })
             .populate({
                 path: 'orderItems',
