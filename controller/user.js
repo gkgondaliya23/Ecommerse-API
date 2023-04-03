@@ -1,10 +1,9 @@
 const bcrypt = require('bcrypt');
-const model = require('../model/usersModel');
-const User = model.User;
+const User = require('../model/usersModel');
 
 exports.updateUser = async (req, res) =>{
     try{
-        const {name, username, email, password, phone} = req.body;
+        const {name, username, email, password, phone, isAdmin} = req.body;
         // check user is found
         const isExsting = await User.findOne({_id: req.params.id});
         if(!isExsting)
@@ -22,11 +21,12 @@ exports.updateUser = async (req, res) =>{
                     username: username,
                     email: email,
                     password: hashPassword,
-                    phone: phone
+                    phone: phone,
+                    isAdmin
                 }
             },
             {new: true,upsert:true})
-            res.status(200).json({ user_id: doc.id, message: 'User update successfully' });
+            res.status(200).json({ user: doc, message: 'User update successfully' });
     }catch(err){
         console.error(err);
     res.status(500).json({ message: 'Server error' });

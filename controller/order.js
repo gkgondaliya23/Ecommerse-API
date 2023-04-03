@@ -41,16 +41,6 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-// Get All Orders
-exports.getAllOrders = async (req, res) => {
-    try {
-        const allOrders = await Order.find({}).populate('user');
-        res.status(200).json(allOrders);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
 
 
 exports.getAllOrders = async (req, res) => {
