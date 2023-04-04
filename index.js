@@ -24,11 +24,13 @@ const authController = require('./routes/auth');
 const userController = require('./routes/user');
 const productController = require('./routes/product');
 const orderController = require('./routes/order');
+const favorites = require('./routes/favorites');
 
 app.use('/api/auth', authController);
 app.use('/api/users', userController);
 app.use('/api/products', productController);
 app.use('/api/orders', orderController);
+app.use('/api/favorites', favorites);
 
 app.listen(port, ()=>{
     console.log(`server is start at ${port}`);

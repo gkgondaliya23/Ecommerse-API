@@ -139,3 +139,25 @@ exports.deleteOrder = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+exports.getUserOrder = async (req, res) => {
+    try{
+        const getOrder = await Order.find({user: req.params.id}).populate({
+            path: "user",
+            select: "name"
+        })
+            .populate({
+                path: "orderItems",
+                populate: {
+                    path: "product",
+                    select: "title price",
+                }
+            }).sort({dateOrdered: -1});
+        res.status(200).json(getOrder);
+
+
+    } catch(err){
+        console.log(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+}

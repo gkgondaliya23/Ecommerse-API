@@ -26,7 +26,7 @@ exports.updateUser = async (req, res) =>{
                 }
             },
             {new: true,upsert:true})
-            res.status(200).json({ user: doc, message: 'User update successfully' });
+            res.status(200).json({ user_id: doc.id, message: 'User update successfully' });
     }catch(err){
         console.error(err);
     res.status(500).json({ message: 'Server error' });
